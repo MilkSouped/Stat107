@@ -1,0 +1,17 @@
+---
+title: "Sales"
+author: "Ethan Chan, Alex Back, Darren Kuboyama"
+date: "12/11/2024"
+format:
+  html:
+    toc: true
+    toc-location: left
+    embed-resources: true
+    code-line-numbers: true
+---
+
+## 
+
+```{r}
+data <- read.csv('payments.csv')
+```
