@@ -10,8 +10,23 @@ format:
     code-line-numbers: true
 ---
 
-## 
+#Packages
 
 ```{r}
-data <- read.csv('payments.csv')
+library("tidyverse")
+```
+
+#Top 5 and Bottom 5 Moisturizers Based on Rating
+
+```{r}
+data <- read.csv('product_info.csv')
+
+moisturizers_data <- data %>%
+  filter(secondary_category == "Moisturizers")
+
+top_3 <- moisturizers_data %>%
+  arrange(desc(rating), desc(reviews), desc(loves_count)) %>%  
+  slice_head(n = 3)         
+
+print(top_3)
 ```
