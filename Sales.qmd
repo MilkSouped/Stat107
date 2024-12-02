@@ -14,8 +14,11 @@ format:
 
 We begin by adding the tidyverse library for later uses.
 
+#Packages
+
 ```{r}
 library(tidyverse)
+library(ggplot2)
 ```
 
 Next we read in the product information into a dataframe and then combine all the review csvs into one single dataframe to later data clean.
@@ -76,6 +79,30 @@ summary_category <- combined %>%
     avg_loves = mean(loves_count, na.rm = TRUE),
     .groups = "drop"
   )
+```
 
+We can now start comparing the rating, reviews and love counts for the top 3 and bottom 3 products of each category by looking at some graphs
 
+#Graphs
+
+```{r}
+top_bottom_moisturizers <- combined %>%
+  filter(secondary_category == "Moisturizers") %>%
+  filter(category %in% c("Top 3", "Worst 3"))  
+
+print(top_bottom_moisturizers)
+
+ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = rating, fill = category)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(
+    title = "Top 3 and Bottom 3 Ratings for Moisturizers",
+    x = "Product Name",
+    y = "Rating"
+  ) +
+  coord_flip() +  
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 6),  
+    axis.text.x = element_text(size = 6)
+  )
 ```
