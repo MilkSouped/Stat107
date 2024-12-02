@@ -10,23 +10,72 @@ format:
     code-line-numbers: true
 ---
 
-#Packages
+**Scientific Question: What differentiates top-rated products from bottom-rated products across various categories, and what keywords in customer reviews signal positive sentiments?**
+
+We begin by adding the tidyverse library for later uses.
 
 ```{r}
-library("tidyverse")
+library(tidyverse)
 ```
 
-#Top 5 and Bottom 5 Moisturizers Based on Rating
+Next we read in the product information into a dataframe and then combine all the review csvs into one single dataframe to later data clean.
 
 ```{r}
-data <- read.csv('product_info.csv')
+product_info <- read.csv('product_info.csv')
+review_files <- list.files(pattern = "reviews_.*\\.csv") #merge csvs
+reviews <- do.call(rbind, lapply(review_files, read.csv)) #make it into a dataframe
 
-moisturizers_data <- data %>%
-  filter(secondary_category == "Moisturizers")
+```
 
-top_3 <- moisturizers_data %>%
-  arrange(desc(rating), desc(reviews), desc(loves_count)) %>%  
-  slice_head(n = 3)         
+Now we narrow it down to the metrics we want to look at, specifically the categories, reviews, ratings, and the love counts.
 
-print(top_3)
+```{r}
+product_data <- product_info %>%
+  select(product_id, product_name, brand_id, secondary_category, tertiary_category, rating, reviews, loves_count) %>%
+  filter(!(secondary_category == "" & tertiary_category == ""))
+```
+
+Now we sort them into the top 3 and worst 3 based on the secondary category.
+
+```{r}
+top_3 <- product_data %>%
+  group_by(secondary_category) %>%
+  arrange(desc(rating), desc(reviews), desc(loves_count)) %>% 
+  slice_head(n = 3) %>%  
+  ungroup()
+
+worst_3 <- product_data %>%
+  group_by(secondary_category) %>%
+  arrange(rating, reviews, loves_count) %>%  
+  slice_head(n = 3) %>%  
+  ungroup()
+
+combined <- bind_rows(
+  top_3 %>% mutate(category = "Top 3"),
+  worst_3 %>% mutate(category = "Worst 3")
+)
+
+```
+
+Now we might look at some trends, lets look at the average rating, reviews, and loves of the top 3 and worst 3.
+
+```{r}
+# Combined summary for Top 3 and Worst 3
+summary_overall <- combined %>%
+  group_by(category) %>%
+  summarize(
+    avg_rating = mean(rating, na.rm = TRUE),
+    avg_reviews = mean(reviews, na.rm = TRUE),
+    avg_loves = mean(loves_count, na.rm = TRUE)
+  )
+summary_category <- combined %>%
+  group_by(secondary_category, category) %>%
+  summarize(
+    avg_rating = mean(rating, na.rm = TRUE),
+    avg_reviews = mean(reviews, na.rm = TRUE),
+    avg_loves = mean(loves_count, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
 ```
