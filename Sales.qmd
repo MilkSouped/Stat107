@@ -10,8 +10,19 @@ format:
     code-line-numbers: true
 ---
 
-## 
+**Scientific Question: What differentiates top-rated products from bottom-rated products across various categories, and what keywords in customer reviews signal positive sentiments?**
+
+We begin by adding the tidyverse library for later uses.
 
 ```{r}
-data <- read.csv('payments.csv')
+library(tidyverse)
+```
+
+Next we read in the product information into a dataframe and then combine all the review csvs into one single dataframe to later data clean.
+
+```{r}
+data <- read.csv('product_info.csv')
+review_files <- list.files(pattern = "reviews_.*\\.csv")
+review_data <- do.call(rbind, lapply(review_files, read.csv))
+
 ```
