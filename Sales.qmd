@@ -80,7 +80,7 @@ summary_category <- combined %>%
 
 ```
 
-Now lets narrow this down to gain a deeper understanding of the metric's correlations
+Now lets narrow this down to gain a deeper understanding of the metric's correlations. This will give us a deeper understanding of whether or not the high ratings are linked to customer engagement and the relationship of these metrics could be a strength or weakness in a company's product. There is a positive correlation only in the loves count vs reviews. As love count measures a customer's preference or loyalty to a product, these products with higher love counts often resonate well with customers which can indicate a stronger brand or product appeal. While higher reviews refelct customer engagement which means customers are actively interacting and sharing their experience with these products. These may be important as love counts are valuable in its way to show a loyal customer base and product desirability while reviews show direct feedback and helps a brand identify areas for improvement or marketing. This correlation has a measure of preference which shows engagement and holisticly shows a product's performance, and it shows that between reviews and love counts are more likely to be loved by customers.
 
 ```{r}
 # Scatterplot: Rating vs Reviews
@@ -119,6 +119,8 @@ ggplot(combined, aes(x = reviews, y = loves_count)) +
 
 ```
 
+Quantifying this, we can see that the correlation of reviews and loves tend to be much higher than reviews and ratings or ratings and loves.
+
 ```{r}
 correlations <- combined %>%
   group_by(secondary_category) %>%
@@ -133,6 +135,8 @@ correlations
 
 
 ```
+
+This table reveals something interesting. The worst 3 products tend to have a higher average review and love count compared to the top 3 products which have fewer reviews and love counts. This suggests that high visibility and customer engagement (throguh reviews) dont always translate to positive sentiments or high ratings. instead these metrics could indicate polarizing products that attract significant attention but also receive miexed or negative feedback. However, the top 3 products,despite having fewer reviews and loves maintain a higher average rating which could mean they deliver consistent qualtiy and satisifcation to a samller but liekly more loyal audience. This observation could enforce the idea taht quantity of engagement throguh reviews or loves does not necessairly equate to a quality of sentiment through ratings. Understanding this dynamic could help a brand focus on improving their underperformign product with high visibility to turn into loyalty and satsifcation. But why might a low rated product have such low love counts you might ask? This could be due to either strong marketing, or a brand's reputation, a subset of users who strongly dislike and those who like, historical popularity that has declined, brand loyalty, or just simply an intent to purchase but never did.
 
 ```{r}
 summary_metrics <- combined %>%
@@ -175,93 +179,58 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
 
 ```
 
-Now lets have a better understanding of our products now that we know these correlations
+Now to better understnad our products by analyzing their performance through primary categories which provides a simplified and clearer view of data. However, to achieve this, we exclude the mini sizes, as they represent smaller versions of existing products and may skew the results without offering anything unique. We group these primary categories again into their ratings, reviews, and love counts, for the top 3 and bottom 3 products in each category. Skincare has higher reviews and love counts for the worst 3 products compared to the top 3 which could suggest high customer interest but mixed satisfcation or the fact that there were more people who bought the product but just didn't like it compared to the top 3. While tools and brushes excel in all the categories for the top 3 which might highlight a category where quality plays a critical role in custoemr rating. While the rest might just suggest niche appeals or polarizing customer preferences, these patterns emphasize that high engagement does not always translate to high satisfaction, as we've seen before. This underscores the importantance that we must dive deeper into brand performance review sentiments to truly get the crux of it and uncover reasons behind these trends and understand strategies for product improvement.
 
 ```{r}
-#combine to decrease categories, less clutter
-category_mapping <- c(
-  "Shampoo & Conditioner" = "Haircare",
-  "Hair Styling & Treatments" = "Haircare",
-  "Moisturizers" = "Skincare",
-  "Serums" = "Skincare",
-  "Lip Balms & Treatments" = "Makeup",
-  "Palettes" = "Makeup"
-)
+#use primary category now for graph simplification
+combined_with_primary <- combined %>%
+  left_join(product_info %>% select(product_id, primary_category), by = "product_id")
 
-#group data by broad categories, put unmapped categories to 'other,' and find avgs
-broad_category_summary <- combined %>%
+#remove "mini size" irrelevant and skews info
+broad_category_summary <- combined_with_primary %>%
+  filter(primary_category != "Mini Size") %>% 
   mutate(
-    broad_category = recode(secondary_category, !!!category_mapping, .default = "Other")
+    broad_category = ifelse(is.na(primary_category) | primary_category == "", "Other", primary_category)  
   ) %>%
-  group_by(broad_category, category) %>%
+  group_by(broad_category, category) %>%  
   summarize(
-    avg_rating = mean(rating, na.rm = TRUE),
-    avg_reviews = mean(reviews, na.rm = TRUE),
-    avg_loves = mean(loves_count, na.rm = TRUE),
+    avg_rating = mean(rating, na.rm = TRUE),   
+    avg_reviews = mean(reviews, na.rm = TRUE), 
+    avg_loves = mean(loves_count, na.rm = TRUE), 
     .groups = "drop"
   )
 
-# top 5 and bottom 5 based on avg rating (for generality)
-top_bottom_categories <- broad_category_summary %>%
-  arrange(desc(avg_rating)) %>%
-  slice_head(n = 5) %>%
-  bind_rows(
-    broad_category_summary %>%
-      arrange(avg_rating) %>%
-      slice_head(n = 5)
-  )
-
-# combine the 'other' category with the other less relevant categories
-filtered_summary <- broad_category_summary %>%
-  mutate(
-    broad_category = ifelse(broad_category %in% top_bottom_categories$broad_category, 
-                            broad_category, 
-                            "Other")
-  ) %>%
-  group_by(broad_category, category) %>%
-  summarize(
-    avg_rating = mean(avg_rating, na.rm = TRUE),
-    avg_reviews = mean(avg_reviews, na.rm = TRUE),
-    avg_loves = mean(avg_loves, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-#avg ratings
-ggplot(filtered_summary, aes(x = reorder(broad_category, avg_rating), y = avg_rating, fill = category)) +
+#avg rating
+ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_rating), y = avg_rating, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   labs(
-    title = "Average Ratings by Key Broad Categories (Top 3 vs Worst 3)",
-    x = "Broad Category",
+    title = "Average Ratings by Primary Categories (Top 3 vs Worst 3)",
+    x = "Primary Category",
     y = "Average Rating",
     fill = "Category"
   ) +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_text(size = 8),
-    plot.title = element_text(size = 14),
-    legend.text = element_text(size = 10)
-  )
+  theme_minimal()
 
-#avg reviews
-ggplot(filtered_summary, aes(x = reorder(broad_category, avg_reviews), y = avg_reviews, fill = category)) +
+#avg review
+ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_reviews), y = avg_reviews, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   labs(
-    title = "Average Reviews by Key Broad Categories (Top 3 vs Worst 3)",
-    x = "Broad Category",
+    title = "Average Reviews by Primary Categories (Top 3 vs Worst 3)",
+    x = "Primary Category",
     y = "Average Reviews",
     fill = "Category"
   ) +
   theme_minimal()
 
-#avg loves
-ggplot(filtered_summary, aes(x = reorder(broad_category, avg_loves), y = avg_loves, fill = category)) +
+#avg love count
+ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_loves), y = avg_loves, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
   labs(
-    title = "Average Loves Count by Key Broad Categories (Top 3 vs Worst 3)",
-    x = "Broad Category",
+    title = "Average Loves Count by Primary Categories (Top 3 vs Worst 3)",
+    x = "Primary Category",
     y = "Average Loves Count",
     fill = "Category"
   ) +
