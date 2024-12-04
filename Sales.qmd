@@ -79,3 +79,192 @@ summary_category <- combined %>%
 
 
 ```
+
+Now lets narrow this down to gain a deeper understanding of the metric's correlations
+
+```{r}
+# Scatterplot: Rating vs Reviews
+ggplot(combined, aes(x = reviews, y = rating)) +
+  geom_point(alpha = 0.6, color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(
+    title = "Relationship Between Reviews and Rating",
+    x = "Number of Reviews",
+    y = "Rating"
+  ) +
+  theme_minimal()
+
+# Scatterplot: Rating vs Loves Count
+ggplot(combined, aes(x = loves_count, y = rating)) +
+  geom_point(alpha = 0.6, color = "green") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(
+    title = "Relationship Between Loves Count and Rating",
+    x = "Loves Count",
+    y = "Rating"
+  ) +
+  theme_minimal()
+
+# Scatterplot: Loves Count vs Reviews
+ggplot(combined, aes(x = reviews, y = loves_count)) +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(
+    title = "Relationship Between Reviews and Loves Count",
+    x = "Number of Reviews",
+    y = "Loves Count"
+  ) +
+  theme_minimal()
+
+
+```
+
+```{r}
+correlations <- combined %>%
+  group_by(secondary_category) %>%
+  summarize(
+    corr_reviews_rating = cor(reviews, rating, use = "complete.obs"),  
+    corr_rating_loves = cor(rating, loves_count, use = "complete.obs"),
+    corr_reviews_loves = cor(reviews, loves_count, use = "complete.obs"), 
+    .groups = "drop"
+  )
+
+correlations
+
+
+```
+
+```{r}
+summary_metrics <- combined %>%
+  group_by(category) %>%
+  summarize(
+    avg_rating = mean(rating, na.rm = TRUE),
+    avg_reviews = mean(reviews, na.rm = TRUE),
+    avg_loves = mean(loves_count, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+print(summary_metrics)
+
+ggplot(summary_metrics, aes(x = category, y = avg_rating, fill = category)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Average Rating Across Categories (Top 3 vs Worst 3)",
+    x = "Category",
+    y = "Average Rating"
+  ) +
+  theme_minimal() 
+
+ggplot(summary_metrics, aes(x = category, y = avg_reviews, fill = category)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Average Reviews Across Categories (Top 3 vs Worst 3)",
+    x = "Category",
+    y = "Average Reviews"
+  ) +
+  theme_minimal() 
+
+ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Average Loves Across Categories (Top 3 vs Worst 3)",
+    x = "Category",
+    y = "Average Loves"
+  ) +
+  theme_minimal() 
+
+```
+
+Now lets have a better understanding of our products now that we know these correlations
+
+```{r}
+#combine to decrease categories, less clutter
+category_mapping <- c(
+  "Shampoo & Conditioner" = "Haircare",
+  "Hair Styling & Treatments" = "Haircare",
+  "Moisturizers" = "Skincare",
+  "Serums" = "Skincare",
+  "Lip Balms & Treatments" = "Makeup",
+  "Palettes" = "Makeup"
+)
+
+#group data by broad categories, put unmapped categories to 'other,' and find avgs
+broad_category_summary <- combined %>%
+  mutate(
+    broad_category = recode(secondary_category, !!!category_mapping, .default = "Other")
+  ) %>%
+  group_by(broad_category, category) %>%
+  summarize(
+    avg_rating = mean(rating, na.rm = TRUE),
+    avg_reviews = mean(reviews, na.rm = TRUE),
+    avg_loves = mean(loves_count, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# top 5 and bottom 5 based on avg rating (for generality)
+top_bottom_categories <- broad_category_summary %>%
+  arrange(desc(avg_rating)) %>%
+  slice_head(n = 5) %>%
+  bind_rows(
+    broad_category_summary %>%
+      arrange(avg_rating) %>%
+      slice_head(n = 5)
+  )
+
+# combine the 'other' category with the other less relevant categories
+filtered_summary <- broad_category_summary %>%
+  mutate(
+    broad_category = ifelse(broad_category %in% top_bottom_categories$broad_category, 
+                            broad_category, 
+                            "Other")
+  ) %>%
+  group_by(broad_category, category) %>%
+  summarize(
+    avg_rating = mean(avg_rating, na.rm = TRUE),
+    avg_reviews = mean(avg_reviews, na.rm = TRUE),
+    avg_loves = mean(avg_loves, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+#avg ratings
+ggplot(filtered_summary, aes(x = reorder(broad_category, avg_rating), y = avg_rating, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(
+    title = "Average Ratings by Key Broad Categories (Top 3 vs Worst 3)",
+    x = "Broad Category",
+    y = "Average Rating",
+    fill = "Category"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 8),
+    plot.title = element_text(size = 14),
+    legend.text = element_text(size = 10)
+  )
+
+#avg reviews
+ggplot(filtered_summary, aes(x = reorder(broad_category, avg_reviews), y = avg_reviews, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(
+    title = "Average Reviews by Key Broad Categories (Top 3 vs Worst 3)",
+    x = "Broad Category",
+    y = "Average Reviews",
+    fill = "Category"
+  ) +
+  theme_minimal()
+
+#avg loves
+ggplot(filtered_summary, aes(x = reorder(broad_category, avg_loves), y = avg_loves, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(
+    title = "Average Loves Count by Key Broad Categories (Top 3 vs Worst 3)",
+    x = "Broad Category",
+    y = "Average Loves Count",
+    fill = "Category"
+  ) +
+  theme_minimal()
+
+```
