@@ -88,9 +88,9 @@ We can now start comparing the rating, reviews and love counts for the top 3 and
 ```{r}
 top_bottom_moisturizers <- combined %>%
   filter(secondary_category == "Moisturizers") %>%
-  filter(category %in% c("Top 3", "Worst 3"))  
+  filter(category %in% c("Top 3", "Worst 3"))  # Grab Top 3 and Worst 3
 
-print(top_bottom_moisturizers)
+#print(top_bottom_moisturizers) Testing that the correct products are printed
 
 ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = rating, fill = category)) +
   geom_bar(stat = "identity", width = 0.5) +
@@ -99,7 +99,7 @@ ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = ratin
     x = "Product Name",
     y = "Rating"
   ) +
-  coord_flip() +  
+  coord_flip() +  # flip the axis for better visibility
   theme_minimal() +
   theme(
     axis.text.y = element_text(size = 6),  
