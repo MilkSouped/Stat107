@@ -14,8 +14,11 @@ format:
 
 We begin by adding the tidyverse library for later uses.
 
+#Packages
+
 ```{r}
 library(tidyverse)
+library(ggplot2)
 ```
 
 Next we read in the product information into a dataframe and then combine all the review csvs into one single dataframe to later data clean.
@@ -76,8 +79,32 @@ summary_category <- combined %>%
     avg_loves = mean(loves_count, na.rm = TRUE),
     .groups = "drop"
   )
+```
 
+We can now start comparing the rating, reviews and love counts for the top 3 and bottom 3 products of each category by looking at some graphs
 
+#Graphs
+
+```{r}
+top_bottom_moisturizers <- combined %>%
+  filter(secondary_category == "Moisturizers") %>%
+  filter(category %in% c("Top 3", "Worst 3"))  
+
+print(top_bottom_moisturizers)
+
+ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = rating, fill = category)) +
+  geom_bar(stat = "identity", width = 0.5) +
+  labs(
+    title = "Top 3 and Bottom 3 Ratings for Moisturizers",
+    x = "Product Name",
+    y = "Rating"
+  ) +
+  coord_flip() +  
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 6),  
+    axis.text.x = element_text(size = 6)
+  )
 ```
 
 Now lets narrow this down to gain a deeper understanding of the metric's correlations. This will give us a deeper understanding of whether or not the high ratings are linked to customer engagement and the relationship of these metrics could be a strength or weakness in a company's product. There is a positive correlation only in the loves count vs reviews. As love count measures a customer's preference or loyalty to a product, these products with higher love counts often resonate well with customers which can indicate a stronger brand or product appeal. While higher reviews refelct customer engagement which means customers are actively interacting and sharing their experience with these products. These may be important as love counts are valuable in its way to show a loyal customer base and product desirability while reviews show direct feedback and helps a brand identify areas for improvement or marketing. This correlation has a measure of preference which shows engagement and holisticly shows a product's performance, and it shows that between reviews and love counts are more likely to be loved by customers.
