@@ -27,7 +27,6 @@ Next we read in the product information into a dataframe and then combine all th
 product_info <- read.csv('product_info.csv')
 review_files <- list.files(pattern = "reviews_.*\\.csv") #merge csvs
 reviews <- do.call(rbind, lapply(review_files, read.csv)) #make it into a dataframe
-
 ```
 
 Now we narrow it down to the metrics we want to look at, specifically the categories, reviews, ratings, and the love counts.
@@ -81,7 +80,7 @@ summary_category <- combined %>%
   )
 ```
 
-We can now start comparing the rating, reviews and love counts for the top 3 and bottom 3 products of each category by looking at some graphs
+We can now start comparing the rating, reviews, and love counts for the top 3 and bottom 3 products of each category by looking at some graphs.
 
 #Graphs
 
@@ -106,8 +105,9 @@ ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = ratin
     axis.text.x = element_text(size = 6)
   )
 ```
+An important detail we can see just from visualizing the product names in this graph is that popular ingredients like Hyaluronic Acid does not guarantee a high rating. In fact, it is in the Worst 3 category. In contrast ingredients like Niacinamide or products that target dark spots and the skin's texture seem to be dominating the Top 3.
 
-Now lets narrow this down to gain a deeper understanding of the metric's correlations. This will give us a deeper understanding of whether or not the high ratings are linked to customer engagement and the relationship of these metrics could be a strength or weakness in a company's product. There is a positive correlation only in the loves count vs reviews. As love count measures a customer's preference or loyalty to a product, these products with higher love counts often resonate well with customers which can indicate a stronger brand or product appeal. While higher reviews refelct customer engagement which means customers are actively interacting and sharing their experience with these products. These may be important as love counts are valuable in its way to show a loyal customer base and product desirability while reviews show direct feedback and helps a brand identify areas for improvement or marketing. This correlation has a measure of preference which shows engagement and holisticly shows a product's performance, and it shows that between reviews and love counts are more likely to be loved by customers.
+Now lets narrow this down to gain a deeper understanding of the metric's correlations. This will give us a deeper understanding of whether or not the high ratings are linked to customer engagement and the relationship of these metrics could be a strength or weakness in a company's product. 
 
 ```{r}
 # Scatterplot: Rating vs Reviews
@@ -145,8 +145,36 @@ ggplot(combined, aes(x = reviews, y = loves_count)) +
 
 
 ```
+The first graph, showing the relationship between reviews and ratings, also 
+exhibits a weak positive correlation. Products with more reviews tend to have 
+slightly higher ratings, but most ratings remain in the 4 to 5 range, regardless
+of review count. Reviews highlight engagement and visibility, while ratings 
+reflect customer satisfaction. The clustering of ratings indicates that while 
+customer satisfaction is generally high, reviews are a more dynamic metric for 
+measuring product visibility and interaction.
 
-Quantifying this, we can see that the correlation of reviews and loves tend to be much higher than reviews and ratings or ratings and loves.
+The second graph, focusing on the relationship between loves count and ratings, 
+reveals a weak positive correlation. While products with higher loves tend to 
+have slightly higher ratings, the relationship is not strong, and ratings 
+cluster around 4 to 5 regardless of popularity. Loves count measures customer 
+loyalty and emotional appeal, while ratings assess satisfaction. The lack of a 
+strong correlation suggests that a product's popularity does not always 
+translate directly into higher satisfaction. This emphasizes the importance of 
+analyzing these metrics together to capture a product’s full performance.
+
+The third graph, examining the relationship between reviews and loves count,
+shows a strong positive correlation, indicating that products with higher 
+reviews also tend to have higher loves. This suggests that customer interaction 
+through reviews aligns closely with emotional resonance and loyalty, as measured
+by loves count. Loves count reflects a product's desirability and brand appeal, 
+while reviews showcase customer engagement and feedback. Products that perform 
+well in both metrics demonstrate strong marketing and customer alignment.
+
+Quantitatively, the correlation between reviews and loves is significantly 
+stronger compared to the relationships between reviews and ratings or ratings 
+and loves. This suggests that products with higher reviews are not only engaging
+customers but are also more likely to be loved, making the combination of these 
+metrics a holistic indicator of product performance.
 
 ```{r}
 correlations <- combined %>%
@@ -206,7 +234,7 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
 
 ```
 
-Now to better understnad our products by analyzing their performance through primary categories which provides a simplified and clearer view of data. However, to achieve this, we exclude the mini sizes, as they represent smaller versions of existing products and may skew the results without offering anything unique. We group these primary categories again into their ratings, reviews, and love counts, for the top 3 and bottom 3 products in each category. Skincare has higher reviews and love counts for the worst 3 products compared to the top 3 which could suggest high customer interest but mixed satisfcation or the fact that there were more people who bought the product but just didn't like it compared to the top 3. While tools and brushes excel in all the categories for the top 3 which might highlight a category where quality plays a critical role in custoemr rating. While the rest might just suggest niche appeals or polarizing customer preferences, these patterns emphasize that high engagement does not always translate to high satisfaction, as we've seen before. This underscores the importantance that we must dive deeper into brand performance review sentiments to truly get the crux of it and uncover reasons behind these trends and understand strategies for product improvement.
+Now to better understand our products by analyzing their performance through primary categories which provides a simplified and clearer view of data. However, to achieve this, we exclude the mini sizes, as they represent smaller versions of existing products and may skew the results without offering anything unique. We group these primary categories again into their ratings, reviews, and love counts, for the top 3 and bottom 3 products in each category. Skincare has higher reviews and love counts for the worst 3 products compared to the top 3 which could suggest high customer interest but mixed satisfaction or the fact that there were more people who bought the product but just didn't like it compared to the top 3. While tools and brushes excel in all the categories for the top 3 which might highlight a category where quality plays a critical role in customer rating. While the rest might just suggest niche appeals or polarizing customer preferences, these patterns emphasize that high engagement does not always translate to high satisfaction, as we've seen before. This underscores the importance that we must dive deeper into brand performance review sentiments to truly get the crux of it and uncover reasons behind these trends and understand strategies for product improvement.
 
 ```{r}
 #use primary category now for graph simplification
@@ -264,3 +292,11 @@ ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_loves), y = a
   theme_minimal()
 
 ```
+
+
+
+
+
+
+
+
