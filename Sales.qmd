@@ -234,7 +234,6 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
 
 ```
 
-Now to better understand our products by analyzing their performance through primary categories which provides a simplified and clearer view of data. However, to achieve this, we exclude the mini sizes, as they represent smaller versions of existing products and may skew the results without offering anything unique. We group these primary categories again into their ratings, reviews, and love counts, for the top 3 and bottom 3 products in each category. Skincare has higher reviews and love counts for the worst 3 products compared to the top 3 which could suggest high customer interest but mixed satisfaction or the fact that there were more people who bought the product but just didn't like it compared to the top 3. While tools and brushes excel in all the categories for the top 3 which might highlight a category where quality plays a critical role in customer rating. While the rest might just suggest niche appeals or polarizing customer preferences, these patterns emphasize that high engagement does not always translate to high satisfaction, as we've seen before. This underscores the importance that we must dive deeper into brand performance review sentiments to truly get the crux of it and uncover reasons behind these trends and understand strategies for product improvement.
 
 ```{r}
 #use primary category now for graph simplification
@@ -292,11 +291,59 @@ ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_loves), y = a
   theme_minimal()
 
 ```
+To better understand the performance of products across primary categories, we 
+analyzed the data based on average ratings, reviews, and loves counts for the 
+top 3 and bottom 3 products in each category. Mini-sized products were excluded 
+from this analysis to ensure the results focused on the full-sized offerings, as
+mini sizes might skew the findings without offering unique insights. This 
+breakdown allows for a clearer understanding of customer engagement, 
+satisfaction, and loyalty within each category.
 
+The results reveal several key trends. In skincare, the worst 3 products 
+surprisingly received higher reviews and loves counts compared to the top 3 
+products. This suggests that skincare products in the worst-performing group 
+still garner significant customer interest but likely fail to meet expectations 
+in terms of quality or effectiveness. This pattern could point to either high 
+demand for these products, driven by strong marketing or desirable features, or 
+simply a broader audience that ended up being dissatisfied with the results. 
+This highlights the importance of investigating variability within this 
+category, as high engagement does not necessarily translate into high 
+satisfaction.
 
+Conversely, Tools & Brushes emerge as a standout category, excelling across all 
+metrics for the top 3 products. This indicates consistent quality and customer 
+satisfaction, where tools and brushes meet or exceed expectations. The strong 
+performance in reviews and loves counts reflects a loyal customer base and 
+suggests that functionality and quality play critical roles in shaping consumer 
+opinions in this category. Tools & Brushes demonstrate that delivering reliable,
+high-quality products can lead to success across all performance metrics.
 
+Other categories, such as Makeup, Hair, and Bath & Body, reveal more mixed 
+patterns, where engagement levels and satisfaction are not always aligned. For 
+example, some products in these categories have high reviews or loves counts but
+still fall into the bottom 3 due to lower ratings. This suggests that polarizing
+preferences or niche appeals might influence customer perceptions, with some 
+consumers finding these products highly satisfactory while others are left 
+disappointed. Fragrance, in particular, shows lower overall reviews and loves 
+counts for both top and bottom performers, reflecting its position as a more 
+specialized category that caters to a specific audience.
 
+These findings emphasize the complex dynamics between engagement, loyalty, and 
+satisfaction. While reviews and loves counts provide valuable insights into 
+customer interest and emotional connection to products, they do not always 
+correlate directly with ratings, which reflect overall satisfaction and quality.
+Skincare, for instance, underscores the need for brands to explore why high 
+customer interest does not always lead to high satisfaction, while the 
+consistent performance of Tools & Brushes highlights the importance of quality 
+in driving positive outcomes.
 
-
-
+To gain a more nuanced understanding of these trends, it is essential to dive 
+deeper into customer review sentiments. This would help uncover the specific 
+reasons behind high engagement but low satisfaction in certain categories and 
+identify potential areas for improvement. Additionally, leveraging the success 
+of consistently high-performing categories like Tools & Brushes could provide 
+valuable insights into how other categories might enhance their appeal and 
+performance. Understanding these patterns will allow brands to refine their 
+strategies, improve under performing products, and build on the strengths of 
+their most successful offerings.
 
