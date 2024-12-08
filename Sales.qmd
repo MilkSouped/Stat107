@@ -18,7 +18,7 @@ We begin by adding the tidyverse library for later uses.
 
 ```{r}
 library(tidyverse)
-library(ggplot2)
+library(tidytext) 
 ```
 
 Next we read in the product information into a dataframe and then combine all the review csvs into one single dataframe to later data clean.
