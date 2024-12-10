@@ -33,7 +33,7 @@ Now we narrow it down to the metrics we want to look at, specifically the catego
 
 ```{r}
 product_data <- product_info %>%
-  select(product_id, product_name, brand_id, secondary_category, tertiary_category, rating, reviews, loves_count) %>%
+  select(product_id, product_name, brand_id, primary_category, secondary_category, tertiary_category, rating, reviews, loves_count) %>%
   filter(!(secondary_category == "" & tertiary_category == ""))
 ```
 
@@ -214,12 +214,7 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
 ```
 
 ```{r}
-#use primary category now for graph simplification
-combined_with_primary <- combined %>%
-  left_join(product_info %>% select(product_id, primary_category), by = "product_id")
-
-#remove "mini size" irrelevant and skews info
-broad_category_summary <- combined_with_primary %>%
+broad_category_summary <- combined %>%
   filter(primary_category != "Mini Size") %>% 
   mutate(
     broad_category = ifelse(is.na(primary_category) | primary_category == "", "Other", primary_category)  
@@ -329,7 +324,13 @@ review_summary <- reviews_with_sentiments %>%
 
 ```{r}
 combined_sentiment <- combined %>%
-  left_join(review_summary, by = "product_id")
+    left_join(review_summary, by = "product_id") %>%
+    drop_na(avg_sentiment, rating) %>% 
+    filter(is.finite(avg_sentiment), is.finite(rating))
+
+combined_sentiment <- combined_sentiment %>%
+    filter(!is.na(avg_helpfulness), !is.na(avg_sentiment)) %>%
+    filter(is.finite(avg_helpfulness), is.finite(avg_sentiment))
 
 summary_by_category <- combined_sentiment %>%
   group_by(category) %>%
@@ -408,5 +409,15 @@ ggplot(feedback_data, aes(x = category, y = feedback_count, fill = feedback_type
   ) +
   theme_minimal()
 
+
+```
+
+```{r}
+combined_sentiment <- combined_sentiment %>%
+  mutate(feedback_ratio = avg_positive_feedback / avg_total_feedback)
+
+model <- lm(rating ~ avg_sentiment + avg_helpfulness + feedback_ratio + category, data = combined_sentiment)
+
+summary(model)
 
 ```
