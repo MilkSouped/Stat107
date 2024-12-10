@@ -363,6 +363,16 @@ ggplot(combined_sentiment, aes(x = avg_sentiment, y = rating, color = category))
   theme_minimal()
   
 ```
+This graph illustrates the relationship between sentiment score and product 
+rating, separating the top 3 and worst 3 products. The top 3 products show 
+consistently high ratings (close to 5) and positive sentiment scores, indicating
+strong alignment between customer satisfaction and emotional responses. In 
+contrast, the worst 3 products display more variability, with lower ratings and 
+wider ranges of sentiment scores. While positive sentiment generally correlates 
+with higher ratings, the variability in sentiment for poorly rated products 
+suggests dissatisfaction or unmet expectations. This comparison highlights how 
+sentiment analysis complements ratings in identifying customer perceptions of 
+product effectiveness.
 
 ```{r}
 ggplot(combined_sentiment, aes(x = avg_helpfulness, y = avg_sentiment, color = category)) +
@@ -376,8 +386,15 @@ ggplot(combined_sentiment, aes(x = avg_helpfulness, y = avg_sentiment, color = c
   theme_minimal()
 
 ```
-
-\
+This graph explores the alignment between review helpfulness and sentiment 
+scores for top and worst-performing products. For the top 3 products, reviews 
+deemed helpful often exhibit higher sentiment scores, reflecting a direct 
+connection between perceived review quality and positivity. However, for the 
+worst 3 products, helpfulness ratings show little alignment with sentiment, as 
+reviews for these products exhibit generally low sentiment regardless of their 
+perceived helpfulness. This suggests that helpful reviews for top-performing 
+products reinforce their appeal, while reviews for poorly performing products 
+may highlight issues without offering actionable positivity.
 
 ```{r}
 combined_sentiment <- combined_sentiment %>%
@@ -394,6 +411,7 @@ ggplot(combined_sentiment, aes(x = feedback_ratio, y = avg_sentiment, color = ca
   theme_minimal()
 
 ```
+This graph examines how the ratio of positive feedback correlates with sentiment scores across top and worst-performing products. Top 3 products show a clear relationship between high positive feedback ratios and strong sentiment scores, confirming customer satisfaction and engagement. On the other hand, the worst 3 products display more variability in sentiment scores, even when positive feedback ratios are relatively high. This indicates that low-performing products may still receive some positive feedback, but the overall sentiment reflects dissatisfaction or mixed experiences. The distinction reinforces the importance of both feedback quality and sentiment in evaluating product success.
 
 ```{r}
 feedback_data <- combined_sentiment %>%
@@ -411,6 +429,16 @@ ggplot(feedback_data, aes(x = category, y = feedback_count, fill = feedback_type
 
 
 ```
+
+This bar chart compares the average positive and negative feedback counts for 
+the top 3 and worst 3 products. Top-performing products receive overwhelmingly 
+positive feedback, with minimal negative responses, underscoring their 
+effectiveness and popularity. Conversely, the worst-performing products exhibit 
+a more balanced feedback profile, with lower overall feedback counts and a 
+higher proportion of negative responses. This contrast highlights the role of 
+feedback in driving product reputation, with positive feedback reinforcing 
+customer loyalty for top products, while mixed feedback signals issues for the 
+worst performers.
 
 ```{r}
 combined_sentiment <- combined_sentiment %>%
