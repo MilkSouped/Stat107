@@ -449,3 +449,26 @@ model <- lm(rating ~ avg_sentiment + avg_helpfulness + feedback_ratio + category
 summary(model)
 
 ```
+To quantify these relationships, we performed a linear regression analysis. The 
+model predicts product ratings based on average sentiment, helpfulness, feedback
+ratio, and category. The results showed that while sentiment scores and feedback
+ratios alone weren’t statistically significant predictors, the distinction 
+between top 3 and worst 3 categories was highly significant. Products in the 
+worst 3 categories, on average, had ratings about 2.5 points lower than those in
+the top 3. This highlights that category plays a critical role in 
+differentiating product performance.
+
+The model itself had a high R-squared value of 0.89, meaning it explains about 
+89% of the variance in product ratings, showing that our chosen predictors 
+together provide a strong explanation of product performance.
+
+So, what does this mean? By combining metrics like ratings, reviews, and 
+sentiment, we gain a comprehensive view of what drives product performance. This
+analysis helps us identify that most top products earned its score because of 
+its quality / effectiveness being the main driver of it being well-loved while 
+reviews and customer sentiments did not play a huge factor in the product's 
+ratings and love count. 
+
+
+
+
