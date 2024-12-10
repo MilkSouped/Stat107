@@ -212,6 +212,47 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
   theme_minimal() 
 
 ```
+To further analyze the differences in the average ratings, reviews, and love 
+counts between the top 3 and worst 3 products, we represented this through a 
+table and separate bar plots. From this collection of data, we can get a clearer
+picture of the customer engagement, satisfaction, and loyalty and how it differs
+for each category.
+
+The first bar plot examines the relationship between the average rating across 
+the top 3 and worst 3 products. As we can see, the worst 3 products have an 
+average rating of around 2.59 whereas the top 3 products nearly double that with
+an average rating of 4.90.
+
+The second bar plot examines the relationship between the average reviews across
+the top 3 and worst 3 products. Within the top 3 products, the average reviews 
+is around 67.89 reviews and for the worst 3 products, the average reviews is 
+much higher around 132.96 reviews.
+
+The third bar plot highlights the relationship between the average love counts 
+across the top 3 and worst 3 products. For both the top 3 and worst 3 products, 
+the average love counts stays relatively the same with the top 3 having an 
+average of 7616.66 loves and the worst 3 having an average of 8088.73 loves.
+
+When looking at each of these plots, it is important to note that the the top 3 
+and worst 3 products have significantly different average ratings and reviews. 
+While the top 3 products have higher average ratings, they have lower average 
+reviews and love counts. This suggests that high visibility and customer 
+engagement (through reviews) don't always translate to positive sentiments or 
+high ratings. Instead, these metrics could indicate polarizing products that 
+attract significant attention but also receive mixed or negative feedback. 
+However, despite the top 3 products having fewer reviews and loves, they are 
+still able to maintain a higher average rating, indicating consistent quality 
+and satisfaction to a smaller, and perhaps more loyal group of customers.
+
+This observation could enforce the idea that the quantity of engagement through 
+reviews or love counts does not necessarily equate to the quality of sentiment 
+through ratings. Understanding this dynamic could help a brand focus on 
+improving its underperforming product with high visibility and turn it into 
+something that can sustain customer loyalty and satisfaction. But why might a 
+low-rated product have such low love counts you might ask? This could be due to 
+either strong marketing, or a brand's reputation, a subset of users who strongly
+dislike and those who like, historical popularity that has declined, brand 
+loyalty, or just simply an intent to purchase but never did.
 
 ```{r}
 broad_category_summary <- combined %>%
