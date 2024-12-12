@@ -29,7 +29,7 @@ review_files <- list.files(pattern = "reviews_.*\\.csv") #merge csvs
 reviews <- do.call(rbind, lapply(review_files, read.csv)) #make it into a dataframe
 ```
 
-Now we narrow it down to the metrics we want to look at, specifically the categories, reviews, ratings, and the love counts.
+Now we narrow it down to the metrics we want to look at, specifically the categories, reviews, ratings, and loves count.
 
 ```{r}
 product_data <- product_info %>%
@@ -56,7 +56,6 @@ combined <- bind_rows(
   top_3 %>% mutate(category = "Top 3"),
   worst_3 %>% mutate(category = "Worst 3")
 )
-
 ```
 
 Now we might look at some trends, lets look at the average rating, reviews, and loves of the top 3 and worst 3.
@@ -70,6 +69,7 @@ summary_overall <- combined %>%
     avg_reviews = mean(reviews, na.rm = TRUE),
     avg_loves = mean(loves_count, na.rm = TRUE)
   )
+
 summary_category <- combined %>%
   group_by(secondary_category, category) %>%
   summarize(
@@ -89,8 +89,6 @@ top_bottom_moisturizers <- combined %>%
   filter(secondary_category == "Moisturizers") %>%
   filter(category %in% c("Top 3", "Worst 3"))  # Grab Top 3 and Worst 3
 
-#print(top_bottom_moisturizers) Testing that the correct products are printed
-
 ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = rating, fill = category)) +
   geom_bar(stat = "identity", width = 0.5) +
   labs(
@@ -106,9 +104,9 @@ ggplot(top_bottom_moisturizers, aes(x = reorder(product_name, rating), y = ratin
   )
 ```
 
-An important detail we can see just from visualizing the product names in this graph is that popular ingredients like Hyaluronic Acid does not guarantee a high rating. In fact, it is in the Worst 3 category. In contrast ingredients like Niacinamide or products that target dark spots and the skin's texture seem to be dominating the Top 3.
+An important detail we can see just from visualizing the product names in this graph is that popular ingredients like Hyaluronic Acid do not guarantee high ratings. In fact, this product falls under the Worst 3 category. In contrast, ingredients like Niacinamide or products that target dark spots and the skin's texture seem to dominate the Top 3.
 
-Now lets narrow this down to gain a deeper understanding of the metric's correlations. This will give us a deeper understanding of whether or not the high ratings are linked to customer engagement and the relationship of these metrics could be a strength or weakness in a company's product.
+Now lets narrow this down to gain a deeper understanding of the metrics' correlations. From this, we will have a deeper understanding of whether or not high ratings are linked to customer engagement. Furthermore, the relationship between these metrics could identify strengths or weaknesses in a company's product.
 
 ```{r}
 # Scatterplot: Rating vs Reviews
@@ -143,19 +141,20 @@ ggplot(combined, aes(x = reviews, y = loves_count)) +
     y = "Loves Count"
   ) +
   theme_minimal()
-
-
 ```
 
-The first graph, showing the relationship between reviews and ratings, also exhibits a weak positive correlation. Products with more reviews tend to have slightly higher ratings, but most ratings remain in the 4 to 5 range, regardless of review count. Reviews highlight engagement and visibility, while ratings reflect customer satisfaction. The clustering of ratings indicates that while customer satisfaction is generally high, reviews are a more dynamic metric for measuring product visibility and interaction.
+The first plot, showing the relationship between reviews and ratings, exhibits a weak positive correlation. Products with more reviews tend to have slightly higher ratings, but most ratings remain in the 4 to 5 range, regardless of review count. Reviews highlight engagement and visibility, while ratings reflect customer satisfaction. The clustering of ratings indicates that while customer satisfaction is generally high, reviews are a more dynamic metric for measuring product visibility and interaction.
 
-The second graph, focusing on the relationship between loves count and ratings, reveals a weak positive correlation. While products with higher loves tend to have slightly higher ratings, the relationship is not strong, and ratings cluster around 4 to 5 regardless of popularity. Loves count measures customer loyalty and emotional appeal, while ratings assess satisfaction. The lack of a strong correlation suggests that a product's popularity does not always translate directly into higher satisfaction. This emphasizes the importance of analyzing these metrics together to capture a product’s full performance.
+The second plot, focusing on the relationship between loves and ratings, reveals a weak positive correlation as well. While products with higher loves tend to have slightly higher ratings, the relationship is not strong, and ratings cluster around 4 to 5 regardless of popularity. Loves count measures customer loyalty and emotional appeal, while ratings assess satisfaction. The lack of a strong correlation suggests that a product's popularity does not always translate directly into higher satisfaction.
 
-The third graph, examining the relationship between reviews and loves count, shows a strong positive correlation, indicating that products with higher reviews also tend to have higher loves. This suggests that customer interaction through reviews aligns closely with emotional resonance and loyalty, as measured by loves count. Loves count reflects a product's desirability and brand appeal, while reviews showcase customer engagement and feedback. Products that perform well in both metrics demonstrate strong marketing and customer alignment.
+The third plot, examining the relationship between reviews and loves, shows a strong positive correlation. This indicates that products with higher reviews also tend to have higher loves, suggesting that customer interactions through reviews align closely with emotional resonance and loyalty. Loves reflects a product's desirability and brand appeal, while reviews showcase customer engagement and feedback. Products that perform well in both metrics demonstrate strong marketing and customer alignment.
 
-Quantitatively, the correlation between reviews and loves is significantly stronger compared to the relationships between reviews and ratings or ratings and loves. This suggests that products with higher reviews are not only engaging customers but are also more likely to be loved, making the combination of these metrics a holistic indicator of product performance.
+Quantitatively, the correlation between reviews and loves is significantly stronger compared to the relationships between reviews and ratings or ratings and loves. This suggests that products with higher reviews are not only engaging customers, but are also more likely to be loved, making the combination of these metrics a holistic indicator of product performance.
+
+We can also observe this with a correlation table:
 
 ```{r}
+# Correlations of Metrics Across Secondary Categories
 correlations <- combined %>%
   group_by(secondary_category) %>%
   summarize(
@@ -164,14 +163,8 @@ correlations <- combined %>%
     corr_reviews_loves = cor(reviews, loves_count, use = "complete.obs"), 
     .groups = "drop"
   )
-
 correlations
-
-
 ```
-
-This table reveals something interesting. The worst 3 products tend to have a higher average review and love count compared to the top 3 products which have fewer reviews and love counts. This suggests that high visibility and customer engagement (throguh reviews) dont always translate to positive sentiments or high ratings. instead these metrics could indicate polarizing products that attract significant attention but also receive miexed or negative feedback. However, the top 3 products,despite having fewer reviews and loves maintain a higher average rating which could mean they deliver consistent qualtiy and satisifcation to a samller but liekly more loyal audience. This observation could enforce the idea taht quantity of engagement throguh reviews or loves does not necessairly equate to a quality of sentiment through ratings. Understanding this dynamic could help a brand focus on improving their underperformign product with high visibility to turn into loyalty and satsifcation. But why might a low rated product have such low love counts you might ask? This could be due to either strong marketing, or a brand's reputation, a subset of users who strongly dislike and those who like, historical popularity that has declined, brand loyalty, or just simply an intent to purchase but never did.
-
 ```{r}
 summary_metrics <- combined %>%
   group_by(category) %>%
@@ -181,9 +174,9 @@ summary_metrics <- combined %>%
     avg_loves = mean(loves_count, na.rm = TRUE),
     .groups = "drop"
   )
-
 print(summary_metrics)
 
+# Barplot: Ratings Across Categories
 ggplot(summary_metrics, aes(x = category, y = avg_rating, fill = category)) +
   geom_bar(stat = "identity") +
   labs(
@@ -193,6 +186,7 @@ ggplot(summary_metrics, aes(x = category, y = avg_rating, fill = category)) +
   ) +
   theme_minimal() 
 
+# Barplot: Reviews Across Categories
 ggplot(summary_metrics, aes(x = category, y = avg_reviews, fill = category)) +
   geom_bar(stat = "identity") +
   labs(
@@ -202,6 +196,7 @@ ggplot(summary_metrics, aes(x = category, y = avg_reviews, fill = category)) +
   ) +
   theme_minimal() 
 
+# Barplot: Loves Across Categories
 ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
   geom_bar(stat = "identity") +
   labs(
@@ -212,47 +207,18 @@ ggplot(summary_metrics, aes(x = category, y = avg_loves, fill = category)) +
   theme_minimal() 
 
 ```
-To further analyze the differences in the average ratings, reviews, and love 
-counts between the top 3 and worst 3 products, we represented this through a 
-table and separate bar plots. From this collection of data, we can get a clearer
-picture of the customer engagement, satisfaction, and loyalty and how it differs
-for each category.
 
-The first bar plot examines the relationship between the average rating across 
-the top 3 and worst 3 products. As we can see, the worst 3 products have an 
-average rating of around 2.59 whereas the top 3 products nearly double that with
-an average rating of 4.90.
+To further analyze the differences in the average ratings, reviews, and loves count between the top 3 and worst 3 products, we represented this through a table and separate bar plots. From this collection of data, we can assess how customer engagement, satisfaction, and loyalty differ for each category.
 
-The second bar plot examines the relationship between the average reviews across
-the top 3 and worst 3 products. Within the top 3 products, the average reviews 
-is around 67.89 reviews and for the worst 3 products, the average reviews is 
-much higher around 132.96 reviews.
+The first bar plot focuses on the relationship between the average rating across the top 3 and worst 3 products. While the worst 3 products have an average rating of around 2.59, the top 3 products nearly double that with an average rating of 4.90.
 
-The third bar plot highlights the relationship between the average love counts 
-across the top 3 and worst 3 products. For both the top 3 and worst 3 products, 
-the average love counts stays relatively the same with the top 3 having an 
-average of 7616.66 loves and the worst 3 having an average of 8088.73 loves.
+The second bar plot examines the relationship between the average reviews across the top 3 and worst 3 products. Within the top 3 products, the average reviews is around 67.89 reviews and for the worst 3 products, the average reviews is much higher around 132.96 reviews.
 
-When looking at each of these plots, it is important to note that the the top 3 
-and worst 3 products have significantly different average ratings and reviews. 
-While the top 3 products have higher average ratings, they have lower average 
-reviews and love counts. This suggests that high visibility and customer 
-engagement (through reviews) don't always translate to positive sentiments or 
-high ratings. Instead, these metrics could indicate polarizing products that 
-attract significant attention but also receive mixed or negative feedback. 
-However, despite the top 3 products having fewer reviews and loves, they are 
-still able to maintain a higher average rating, indicating consistent quality 
-and satisfaction to a smaller, and perhaps more loyal group of customers.
+The third bar plot highlights the relationship between the average loves across the top 3 and worst 3 products. For both the top 3 and worst 3 products, the average love counts stays relatively the same with the top 3 having an average of 7616.66 loves and the worst 3 having an average of 8088.73 loves.
 
-This observation could enforce the idea that the quantity of engagement through 
-reviews or love counts does not necessarily equate to the quality of sentiment 
-through ratings. Understanding this dynamic could help a brand focus on 
-improving its underperforming product with high visibility and turn it into 
-something that can sustain customer loyalty and satisfaction. But why might a 
-low-rated product have such low love counts you might ask? This could be due to 
-either strong marketing, or a brand's reputation, a subset of users who strongly
-dislike and those who like, historical popularity that has declined, brand 
-loyalty, or just simply an intent to purchase but never did.
+When analyzing these plots, we observed that the top 3 and worst 3 products have significantly different average ratings and reviews. While the top 3 products have higher average ratings, they also retain fewer average reviews and loves. This suggests that high visibility and customer engagement (through reviews) don't always translate to positive sentiments or high ratings. Instead, these metrics could indicate polarizing products that attract significant attention but also receive mixed or negative feedback. However, despite the top 3 products having fewer reviews and loves, they are still able to maintain a higher average rating, implying consistent quality and satisfaction to a smaller, and perhaps more loyal group of customers.
+
+Furthermore, this observation could enforce the idea that the quantity of engagement through reviews or loves does not necessarily equate to the quality of sentiment through ratings. Understanding this dynamic could assist brands to focus on improving their underperforming products with high visibility and transform them into something that can also sustain customer loyalty and satisfaction. 
 
 ```{r}
 broad_category_summary <- combined %>%
@@ -268,7 +234,7 @@ broad_category_summary <- combined %>%
     .groups = "drop"
   )
 
-#avg rating
+# Barplot: Average Ratings vs. Primary Category
 ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_rating), y = avg_rating, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
@@ -280,7 +246,7 @@ ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_rating), y = 
   ) +
   theme_minimal()
 
-#avg review
+# Barplot: Average Reviews vs. Primary Categories
 ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_reviews), y = avg_reviews, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
@@ -292,7 +258,7 @@ ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_reviews), y =
   ) +
   theme_minimal()
 
-#avg love count
+# Barplot: Average Loves Count vs. Primary Categories
 ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_loves), y = avg_loves, fill = category)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
@@ -303,28 +269,26 @@ ggplot(broad_category_summary, aes(x = reorder(broad_category, avg_loves), y = a
     fill = "Category"
   ) +
   theme_minimal()
-
 ```
 
-To better understand the performance of products across primary categories, we analyzed the data based on average ratings, reviews, and loves counts for the top 3 and bottom 3 products in each category. Mini-sized products were excluded from this analysis to ensure the results focused on the full-sized offerings, as mini sizes might skew the findings without offering unique insights. This breakdown allows for a clearer understanding of customer engagement, satisfaction, and loyalty within each category.
+To better understand the performance of products across primary categories, we analyzed the data based on average ratings, reviews, and loves count for the top 3 and bottom 3 products. Mini-sized products were excluded from this analysis to ensure the results focused on the full-sized offerings, as mini sizes might skew the findings without offering unique insights.
 
-The results reveal several key trends. In skincare, the worst 3 products surprisingly received higher reviews and loves counts compared to the top 3 products. This suggests that skincare products in the worst-performing group still garner significant customer interest but likely fail to meet expectations in terms of quality or effectiveness. This pattern could point to either high demand for these products, driven by strong marketing or desirable features, or simply a broader audience that ended up being dissatisfied with the results. This highlights the importance of investigating variability within this category, as high engagement does not necessarily translate into high satisfaction.
+The results reveal several key trends. In skincare, the worst 3 products surprisingly received higher reviews and loves compared to the top 3 products. This suggests that skincare products in the worst-performing group still garner significant customer interest but likely fail to meet expectations in terms of quality or effectiveness. This pattern could point to either high demand for these products, driven by strong marketing or desirable features, or simply a broader audience that ended up being dissatisfied with the results. This highlights the importance of investigating variability within this category, as high engagement does not necessarily translate to high satisfaction.
 
-Conversely, Tools & Brushes emerge as a standout category, excelling across all metrics for the top 3 products. This indicates consistent quality and customer satisfaction, where tools and brushes meet or exceed expectations. The strong performance in reviews and loves counts reflects a loyal customer base and suggests that functionality and quality play critical roles in shaping consumer opinions in this category. Tools & Brushes demonstrate that delivering reliable, high-quality products can lead to success across all performance metrics.
+Conversely, Tools & Brushes emerge as a standout category, excelling across all metrics for the top 3 products. This indicates consistent quality and customer satisfaction, where tools and brushes meet or exceed expectations. The strong performance in reviews and loves reflects a loyal customer base and suggests that functionality and quality highly influence consumer opinions in this category. Tools & Brushes demonstrate that delivering reliable, high-quality products can lead to success across all performance metrics.
 
-Other categories, such as Makeup, Hair, and Bath & Body, reveal more mixed patterns, where engagement levels and satisfaction are not always aligned. For example, some products in these categories have high reviews or loves counts but still fall into the bottom 3 due to lower ratings. This suggests that polarizing preferences or niche appeals might influence customer perceptions, with some consumers finding these products highly satisfactory while others are left disappointed. Fragrance, in particular, shows lower overall reviews and loves counts for both top and bottom performers, reflecting its position as a more specialized category that caters to a specific audience.
+Other categories, such as Makeup, Hair, and Bath & Body, reveal more mixed patterns, where engagement levels and satisfaction are not always aligned. For example, some products in these categories have high reviews or loves counts but still fall into the bottom 3 due to lower ratings. This indicates that polarizing preferences or niche appeals might influence customer perceptions, with some consumers finding these products highly satisfactory while others are left disappointed. Fragrance, in particular, shows lower overall reviews and loves for both top and bottom performers, reflecting its position as a more specialized category catering to a specific audience.
 
-These findings emphasize the complex dynamics between engagement, loyalty, and satisfaction. While reviews and loves counts provide valuable insights into customer interest and emotional connection to products, they do not always correlate directly with ratings, which reflect overall satisfaction and quality. Skincare, for instance, underscores the need for brands to explore why high customer interest does not always lead to high satisfaction, while the consistent performance of Tools & Brushes highlights the importance of quality in driving positive outcomes.
+These findings emphasize the complex dynamics between engagement, loyalty, and satisfaction. While reviews and loves counts provide valuable insights into customer interest and emotional connection to products, they do not always correlate directly with ratings, which reflect overall satisfaction and quality. Skincare, for instance, underscores the need for brands to explore why high customer interest does not always lead to high satisfaction. On the other hand, the consistent performance of Tools & Brushes highlights the importance of quality in driving positive outcomes.
 
-To gain a more nuanced understanding of these trends, it is essential to dive deeper into customer review sentiments. This would help uncover the specific reasons behind high engagement but low satisfaction in certain categories and identify potential areas for improvement. Additionally, leveraging the success of consistently high-performing categories like Tools & Brushes could provide valuable insights into how other categories might enhance their appeal and performance. Understanding these patterns will allow brands to refine their strategies, improve under performing products, and build on the strengths of their most successful offerings.
+To gain a more nuanced understanding of these trends, it is essential to dive deeper into customer review sentiments. This would help uncover the specific reasons behind high engagement yet low satisfaction in certain categories and identify potential areas for improvement. Additionally, leveraging the success of consistently high-performing categories like Tools & Brushes could provide valuable insights into how other categories might enhance their appeal and performance. Understanding these patterns will allow brands to refine their strategies, improve underperforming products, and build on the strengths of their most successful offerings.
 
-Now lets move onto reviews
+Now lets move onto reviews:
 
 ```{r}
 reviews_filtered <- reviews %>%
   filter(product_id %in% combined$product_id) %>%
-  select(product_id, review_text, is_recommended, helpfulness, 
-        total_feedback_count, total_neg_feedback_count, total_pos_feedback_count)
+  select(product_id, review_text, is_recommended, helpfulness, total_feedback_count, total_neg_feedback_count, total_pos_feedback_count)
 
 reviews_cleaned <- reviews_filtered %>%
   filter(!is.na(review_text) & review_text != "") %>%
@@ -360,7 +324,6 @@ review_summary <- reviews_with_sentiments %>%
     avg_is_recommended = mean(as.numeric(is_recommended), na.rm = TRUE),  # Convert logical to numeric
     .groups = "drop"
   )
-
 ```
 
 ```{r}
@@ -388,8 +351,6 @@ summary_by_category <- combined_sentiment %>%
 
 # View summary
 print(summary_by_category)
-
-
 ```
 
 ```{r}
@@ -402,17 +363,8 @@ ggplot(combined_sentiment, aes(x = avg_sentiment, y = rating, color = category))
     y = "Rating"
   ) +
   theme_minimal()
-  
 ```
-This graph illustrates the relationship between sentiment score and product 
-rating, separating the top 3 and worst 3 products. The top 3 products show 
-consistently high ratings (close to 5) and positive sentiment scores, indicating
-strong alignment between customer satisfaction and emotional responses. In 
-contrast, the worst 3 products display more variability, with lower ratings and 
-wider ranges of sentiment scores. While positive sentiment generally correlates 
-with higher ratings, the variability in sentiment for poorly rated products 
-suggests dissatisfaction or unmet expectations. This comparison highlights how 
-sentiment analysis complements ratings in identifying customer perceptions of 
+This graph illustrates the relationship between sentiment score and product rating, distinguishing between the top 3 and worst 3 products. The top 3 products reveal consistently high ratings (close to 5) and positive sentiment scores, indicating strong alignment between customer satisfaction and emotional responses. In contrast, the worst 3 products display more variability, with lower ratings and wider ranges of sentiment scores. While positive sentiment generally correlates with higher ratings, the variability in sentiment for poorly rated products suggests dissatisfaction or unmet expectations. This comparison highlights how sentiment analysis complements ratings in identifying customer perceptions of 
 product effectiveness.
 
 ```{r}
@@ -425,17 +377,8 @@ ggplot(combined_sentiment, aes(x = avg_helpfulness, y = avg_sentiment, color = c
     y = "Average Sentiment Score"
   ) +
   theme_minimal()
-
 ```
-This graph explores the alignment between review helpfulness and sentiment 
-scores for top and worst-performing products. For the top 3 products, reviews 
-deemed helpful often exhibit higher sentiment scores, reflecting a direct 
-connection between perceived review quality and positivity. However, for the 
-worst 3 products, helpfulness ratings show little alignment with sentiment, as 
-reviews for these products exhibit generally low sentiment regardless of their 
-perceived helpfulness. This suggests that helpful reviews for top-performing 
-products reinforce their appeal, while reviews for poorly performing products 
-may highlight issues without offering actionable positivity.
+This graph explores the alignment between review helpfulness and sentiment scores for top 3 and worst 3 performing products. For the top 3 products, reviews deemed helpful often exhibit higher sentiment scores, reflecting a direct connection between perceived review quality and positivity. However, for the worst 3 products, helpfulness ratings show little alignment with sentiment, as reviews for these products exhibit generally low sentiment regardless of their perceived helpfulness. This suggests that helpful reviews for top-performing products reinforce their appeal, while reviews for poorly-performing products may highlight issues without offering actionable positivity.
 
 ```{r}
 combined_sentiment <- combined_sentiment %>%
@@ -450,9 +393,9 @@ ggplot(combined_sentiment, aes(x = feedback_ratio, y = avg_sentiment, color = ca
     y = "Average Sentiment Score"
   ) +
   theme_minimal()
-
 ```
-This graph examines how the ratio of positive feedback correlates with sentiment scores across top and worst-performing products. Top 3 products show a clear relationship between high positive feedback ratios and strong sentiment scores, confirming customer satisfaction and engagement. On the other hand, the worst 3 products display more variability in sentiment scores, even when positive feedback ratios are relatively high. This indicates that low-performing products may still receive some positive feedback, but the overall sentiment reflects dissatisfaction or mixed experiences. The distinction reinforces the importance of both feedback quality and sentiment in evaluating product success.
+
+This graph examines how the ratio of positive feedback correlates with sentiment scores across the top and worst-performing products. The top 3 products illustrate a clear relationship between high positive feedback ratios and strong sentiment scores, confirming customer satisfaction and engagement. On the other hand, the worst 3 products display more variability in sentiment scores, even when positive feedback ratios are relatively high. This indicates that low-performing products may still receive some positive feedback, but the overall sentiment reflects dissatisfaction or mixed experiences. The distinction reinforces the importance of both feedback quality and sentiment in evaluating product success.
 
 ```{r}
 feedback_data <- combined_sentiment %>%
@@ -467,19 +410,9 @@ ggplot(feedback_data, aes(x = category, y = feedback_count, fill = feedback_type
     fill = "Feedback Type"
   ) +
   theme_minimal()
-
-
 ```
 
-This bar chart compares the average positive and negative feedback counts for 
-the top 3 and worst 3 products. Top-performing products receive overwhelmingly 
-positive feedback, with minimal negative responses, underscoring their 
-effectiveness and popularity. Conversely, the worst-performing products exhibit 
-a more balanced feedback profile, with lower overall feedback counts and a 
-higher proportion of negative responses. This contrast highlights the role of 
-feedback in driving product reputation, with positive feedback reinforcing 
-customer loyalty for top products, while mixed feedback signals issues for the 
-worst performers.
+This bar chart compares the average positive and negative feedback counts for the top 3 and worst 3 products. Top-performing products receive overwhelmingly positive feedback, with minimal negative responses, underscoring their effectiveness and popularity. Conversely, the worst-performing products exhibit a more balanced feedback profile, with lower overall feedback counts and a higher proportion of negative responses. This contrast highlights the role of feedback in driving product reputation, with positive feedback reinforcing customer loyalty for top products, while mixed feedback signals issues for the worst performers.
 
 ```{r}
 combined_sentiment <- combined_sentiment %>%
@@ -488,28 +421,9 @@ combined_sentiment <- combined_sentiment %>%
 model <- lm(rating ~ avg_sentiment + avg_helpfulness + feedback_ratio + category, data = combined_sentiment)
 
 summary(model)
-
 ```
-To quantify these relationships, we performed a linear regression analysis. The 
-model predicts product ratings based on average sentiment, helpfulness, feedback
-ratio, and category. The results showed that while sentiment scores and feedback
-ratios alone weren’t statistically significant predictors, the distinction 
-between top 3 and worst 3 categories was highly significant. Products in the 
-worst 3 categories, on average, had ratings about 2.5 points lower than those in
-the top 3. This highlights that category plays a critical role in 
-differentiating product performance.
+To quantify these relationships, we performed a linear regression analysis. The model predicts product ratings based on average sentiment, helpfulness, feedback ratio, and category. The results showed that while sentiment scores and feedback ratios alone were not statistically significant predictors, the distinction between top 3 and worst 3 categories was highly significant. Products in the worst 3 categories, on average, had ratings about 2.5 points lower than those in the top 3. This highlights that category plays a critical role in differentiating product performance.
 
-The model itself had a high R-squared value of 0.89, meaning it explains about 
-89% of the variance in product ratings, showing that our chosen predictors 
-together provide a strong explanation of product performance.
+The model itself had a high R-squared value of 0.89, meaning it explains about 89% of the variance in product ratings, showing that our chosen predictors together provide a strong explanation of product performance.
 
-So, what does this mean? By combining metrics like ratings, reviews, and 
-sentiment, we gain a comprehensive view of what drives product performance. This
-analysis helps us identify that most top products earned its score because of 
-its quality / effectiveness being the main driver of it being well-loved while 
-reviews and customer sentiments did not play a huge factor in the product's 
-ratings and love count. 
-
-
-
-
+So, what does this mean? By combining metrics like ratings, reviews, and sentiment, we gain a comprehensive view of what drives product performance. This analysis helps us identify that most top products earned their scores because of their quality/effectiveness being the main driver of emotional appeal while reviews and customer sentiments play a minimal role in the product's ratings and love count. 
